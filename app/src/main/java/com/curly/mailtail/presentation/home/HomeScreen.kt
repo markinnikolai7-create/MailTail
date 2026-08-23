@@ -212,33 +212,40 @@ fun NotebookCard(
                 }
             }
 
+            // Выпадающее меню
             Box {
                 IconButton(onClick = { showMenu = true }) {
                     Icon(Icons.Default.MoreHoriz, contentDescription = "Меню", tint = AccentPink)
                 }
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
-                    modifier = Modifier.background(BottomNavBackground)
+
+                // Переопределяем форму специально для этого меню
+                MaterialTheme(
+                    shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp))
                 ) {
-                    DropdownMenuItem(
-                        text = { Text("Редактировать", color = AccentPink) },
-                        onClick = { showMenu = false }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Пригласить участника", color = AccentPink) },
-                        onClick = { showMenu = false }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                "Удалить",
-                                color = AccentPink,
-                                textDecoration = TextDecoration.Underline
-                            )
-                        },
-                        onClick = { showMenu = false }
-                    )
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                        modifier = Modifier.background(BottomNavBackground)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Редактировать", color = AccentPink) },
+                            onClick = { showMenu = false }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Пригласить участника", color = AccentPink) },
+                            onClick = { showMenu = false }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    "Удалить",
+                                    color = AccentPink,
+                                    textDecoration = TextDecoration.Underline
+                                )
+                            },
+                            onClick = { showMenu = false }
+                        )
+                    }
                 }
             }
         }

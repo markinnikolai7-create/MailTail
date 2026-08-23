@@ -19,7 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.curly.mailtail.presentation.notebook.CreatePostViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -29,25 +31,21 @@ import java.util.Locale
 fun CreatePostScreen(
     notebookId: String,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: CreatePostViewModel = hiltViewModel() // Подключаем ViewModel
 ) {
-    // Текстовые данные
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
     var isDraft by remember { mutableStateOf(false) }
 
-    // Состояние для даты (по умолчанию текущая)
     var selectedDateMillis by remember { mutableStateOf(System.currentTimeMillis()) }
     var showDatePicker by remember { mutableStateOf(false) }
 
-    // Состояние для выбранных фотографий (список URI)
     var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
-    // Нативный контракт Android для множественного выбора фото (до 10 штук)
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 10)
     ) { uris ->
-        // Добавляем новые фото к уже выбранным
         selectedImageUris = selectedImageUris + uris
     }
 
@@ -64,8 +62,16 @@ fun CreatePostScreen(
                 actions = {
                     TextButton(
                         onClick = {
-                            // TODO: Сохранение поста
-                            onNavigateBack()
+                            if (content.isNotBlank()) {
+                                viewModel.savePost(
+                                    title = title,
+                                    content = content,
+                                    dateMillis = selectedDateMillis,
+                                    imageUris = selectedImageUris
+                                ) {
+                                    onNavigateBack()
+                                }
+                            }
                         },
                         enabled = content.isNotBlank()
                     ) {
@@ -79,7 +85,6 @@ fun CreatePostScreen(
             )
         }
     ) { innerPadding ->
-        // Заменили Column на Scrollable, чтобы экран можно было скроллить с клавиатурой
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -90,7 +95,6 @@ fun CreatePostScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Переключатель Черновик/Публикация
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -103,7 +107,6 @@ fun CreatePostScreen(
                 Switch(checked = isDraft, onCheckedChange = { isDraft = it })
             }
 
-            // Карточка выбора даты
             OutlinedCard(
                 onClick = { showDatePicker = true },
                 modifier = Modifier.fillMaxWidth()
@@ -135,10 +138,9 @@ fun CreatePostScreen(
                 label = { Text("Что нового?") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .defaultMinSize(minHeight = 150.dp) // Минимальная высота поля
+                    .defaultMinSize(minHeight = 150.dp)
             )
 
-            // Кнопка прикрепления фото
             Button(
                 onClick = {
                     photoPickerLauncher.launch(
@@ -153,7 +155,6 @@ fun CreatePostScreen(
                 Text("Прикрепить фото")
             }
 
-            // Горизонтальный список (карусель) выбранных фотографий
             if (selectedImageUris.isNotEmpty()) {
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -164,7 +165,7 @@ fun CreatePostScreen(
                             model = uri,
                             contentDescription = "Выбранное фото",
                             modifier = Modifier.size(100.dp),
-                            contentScale = ContentScale.Crop // Обрезает фото в ровный квадрат
+                            contentScale = ContentScale.Crop
                         )
                     }
                 }
@@ -174,7 +175,6 @@ fun CreatePostScreen(
         }
     }
 
-    // Диалог с календарем для выбора даты
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
         DatePickerDialog(
@@ -198,7 +198,6 @@ fun CreatePostScreen(
     }
 }
 
-// Вспомогательная функция для форматирования даты
 private fun formatDate(millis: Long): String {
     val formatter = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
     return formatter.format(Date(millis))

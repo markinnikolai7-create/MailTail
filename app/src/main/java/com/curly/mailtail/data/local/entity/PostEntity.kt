@@ -9,23 +9,25 @@ import androidx.room.PrimaryKey
     tableName = "posts",
     foreignKeys = [
         ForeignKey(
-            entity = NotebookEntity::class, // С какой таблицей связываем
-            parentColumns = ["id"],         // Колонка в родительской таблице (NotebookEntity)
-            childColumns = ["notebook_id"], // Колонка в этой таблице (PostEntity)
-            onDelete = ForeignKey.CASCADE   // Правило: если удален блокнот, удаляем и пост
+            entity = NotebookEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["notebook_id"],
+            onDelete = ForeignKey.CASCADE
         )
     ]
 )
 data class PostEntity(
-    @PrimaryKey val id: String, // Уникальный ID поста
+    @PrimaryKey val id: String,
 
-    // Аннотация @ColumnInfo(index = true) ускоряет поиск постов по ID блокнота
     @ColumnInfo(name = "notebook_id", index = true) val notebookId: String,
 
     val authorName: String,
+    val title: String?, // Заголовок поста
     val content: String,
-    val dateMillis: Long, // Храним время в миллисекундах (Long), это оптимальнее для БД
+    val dateMillis: Long,
+
+    val imageUris: String?, // Строка с путями к картинкам через запятую
 
     val isDraft: Boolean = false,
-    val isSyncing: Boolean = false // Флаг: отправлен пост на сервер или еще в очереди
+    val isSyncing: Boolean = false
 )

@@ -18,13 +18,15 @@ import javax.inject.Singleton
 object DatabaseModule {
 
     @Provides
-    @Singleton // База данных должна быть создана ровно один раз (Паттерн Одиночка)
+    @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
             "mailtail_database"
-        ).build()
+        )
+            .fallbackToDestructiveMigration() // Добавь эту строчку!
+            .build()
     }
 
     @Provides

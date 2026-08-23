@@ -19,6 +19,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import android.net.Uri
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotebookScreen(
@@ -72,24 +78,55 @@ fun NotebookScreen(
 @Composable
 fun PostBubble(post: PostEntity) {
     val formatter = SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault())
-    val dateString = formatter.format(Date(post.dateMillis)) // Используем dateMillis
+    val dateString = formatter.format(Date(post.dateMillis))
 
-    // Определяем, наш ли это пост, по автору
     val isMine = post.authorName == "Я"
-
     val align = if (isMine) Alignment.CenterEnd else Alignment.CenterStart
     val bubbleColor = if (isMine) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
     val textColor = if (isMine) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
 
+    // Достаем картинки обратно из строки
+    val imageUris = remember(post.imageUris) {
+        if (!post.imageUris.isNullOrBlank()) {
+            post.imageUris.split(",").map { Uri.parse(it) }
+        } else {
+            emptyList()
+        }
+    }
+
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = align) {
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth(0.85f)
                 .background(color = bubbleColor, shape = RoundedCornerShape(16.dp))
-                .padding(12.dp)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            if (!post.title.isNullOrBlank()) {
+                Text(text = post.title, color = textColor, style = MaterialTheme.typography.titleMedium)
+            }
+
             Text(text = post.content, color = textColor, style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(4.dp))
+
+            // Если есть фото, выводим их каруселью
+            if (imageUris.isNotEmpty()) {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(imageUris) { uri ->
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = "Фото",
+                            modifier = Modifier
+                                .size(90.dp)
+                                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+            }
+
             Text(
                 text = dateString,
                 color = textColor.copy(alpha = 0.6f),

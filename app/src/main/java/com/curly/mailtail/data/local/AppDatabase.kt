@@ -11,10 +11,11 @@ import com.curly.mailtail.data.local.entity.PostEntity
     entities = [
         NotebookEntity::class,
         PostEntity::class
-    ], // Указываем все наши таблицы
-    version = 1, // Версия БД. Если в будущем мы добавим новую колонку, версию нужно будет повысить
-    exportSchema = false // Отключаем экспорт схемы файлов для простоты настройки
+    ],
+    version = 2, // Поднимаем версию с 1 на 2
+    exportSchema = false
 )
+
 abstract class AppDatabase : RoomDatabase() {
 
     // Описываем абстрактные функции, через которые мы будем получать доступ к SQL-запросам

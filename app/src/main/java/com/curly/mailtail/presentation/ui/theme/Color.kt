@@ -2,18 +2,18 @@ package com.curly.mailtail.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Акцентный цвет из ТЗ
-val PrimaryBlue = Color(0xFF76A6F5)
-val PrimaryBlueVariant = Color(0xFF4A85E6)
+// Твоя новая палитра
+val TextSecondary = Color(0xFF979797)
+val TextPrimary = Color(0xFF525252)
+val AccentPink = Color(0xFFEF659B)
+val AppBackground = Color(0xFFFEF7F9)
+val PostSurface = Color(0xFFFEFEFE)
+val BorderPink = Color(0xFFFAEDF0)
+val BottomNavBackground = Color(0xFFFDDBE7)
+val IconUnselected = Color(0xFFF9B5CF)
 
-// Цвета для Тёмной темы (Базовая)
+// Цвета для Тёмной темы (пока оставляем базовыми или можем потом адаптировать)
 val DarkBackground = Color(0xFF121212)
 val DarkSurface = Color(0xFF1E1E1E)
 val DarkOnBackground = Color(0xFFE0E0E0)
 val DarkOnSurface = Color(0xFFFFFFFF)
-
-// Цвета для Светлой темы
-val LightBackground = Color(0xFFF8F9FA)
-val LightSurface = Color(0xFFFFFFFF)
-val LightOnBackground = Color(0xFF1C1B1F)
-val LightOnSurface = Color(0xFF1C1B1F)

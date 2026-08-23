@@ -19,7 +19,7 @@ import androidx.navigation.navArgument
 import com.curly.mailtail.presentation.home.HomeScreen
 import com.curly.mailtail.presentation.notebook.NotebookScreen
 import com.curly.mailtail.presentation.post.CreatePostScreen
-// Твой исправленный путь импорта темы:
+import com.curly.mailtail.presentation.splash.SplashScreen
 import com.curly.mailtail.presentation.ui.theme.MailTailTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,15 +35,22 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "home",
+                        startDestination = "splash", // СТАРТОВЫЙ ЭКРАН ТЕПЕРЬ SPLASH
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable("auth") {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text(text = "Экран авторизации")
-                            }
+                        // 1. МАРШРУТ SPLASH
+                        composable("splash") {
+                            SplashScreen(
+                                onNavigateNext = {
+                                    // После Splash переходим на Home и убираем Splash из истории
+                                    navController.navigate("home") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+                                }
+                            )
                         }
 
+                        // 2. ГЛАВНЫЙ ЭКРАН (ТОТ САМЫЙ, КОТОРЫЙ ПОТЕРЯЛСЯ)
                         composable("home") {
                             HomeScreen(
                                 onNavigateToNotebook = { notebookId ->
@@ -52,6 +59,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
+                        // 3. ЭКРАН БЛОКНОТА
                         composable(
                             route = "notebook/{notebookId}",
                             arguments = listOf(navArgument("notebookId") { type = NavType.StringType })
@@ -60,12 +68,11 @@ class MainActivity : ComponentActivity() {
 
                             NotebookScreen(
                                 onNavigateBack = { navController.popBackStack() },
-                                // НОВЫЙ КОЛБЭК: Переход на экран создания
                                 onNavigateToCreatePost = { navController.navigate("create_post/$notebookId") }
                             )
                         }
 
-                        // НОВЫЙ МАРШРУТ: Экран создания поста
+                        // 4. ЭКРАН СОЗДАНИЯ ПОСТА
                         composable(
                             route = "create_post/{notebookId}",
                             arguments = listOf(navArgument("notebookId") { type = NavType.StringType })

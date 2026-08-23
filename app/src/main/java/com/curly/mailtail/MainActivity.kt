@@ -38,14 +38,12 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "splash", // СТАРТОВЫЙ ЭКРАН ТЕПЕРЬ SPLASH
+                        startDestination = "splash",
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        // 1. МАРШРУТ SPLASH
                         composable("splash") {
                             SplashScreen(
                                 onNavigateNext = {
-                                    // После Splash переходим на Home и убираем Splash из истории
                                     navController.navigate("home") {
                                         popUpTo("splash") { inclusive = true }
                                     }
@@ -53,29 +51,36 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // 2. ГЛАВНЫЙ ЭКРАН (ТОТ САМЫЙ, КОТОРЫЙ ПОТЕРЯЛСЯ)
                         composable("home") {
                             HomeScreen(
                                 onNavigateToNotebook = { notebookId ->
                                     navController.navigate("notebook/$notebookId")
                                 },
-                                // ДОБАВИЛИ ПЕРЕХОД НА КОНСТРУКТОР:
                                 onNavigateToCreateNotebook = {
                                     navController.navigate("create_notebook")
                                 }
                             )
                         }
 
-                        // ЭКРАН КОНСТРУКТОРА БЛОКНОТА
-                        composable("create_notebook") {
-                            // hiltViewModel() теперь загорится зеленым благодаря импорту
-                            val viewModel: com.curly.mailtail.presentation.home.HomeViewModel = hiltViewModel()
+                        // ВОТ ЭТОГО РОУТА НЕ ХВАТАЛО В НАВИГАЦИИ:
+                        composable(
+                            route = "notebook/{notebookId}",
+                            arguments = listOf(navArgument("notebookId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val notebookId = backStackEntry.arguments?.getString("notebookId") ?: ""
+                            NotebookScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateToCreatePost = { navController.navigate("create_post/$notebookId") }
+                            )
+                        }
 
-                            com.curly.mailtail.presentation.home.CreateNotebookScreen(
+                        composable("create_notebook") {
+                            val viewModel: com.curly.mailtail.presentation.home.HomeViewModel = hiltViewModel()
+                            CreateNotebookScreen(
                                 onNavigateBack = { navController.popBackStack() },
                                 onNotebookCreated = { title, envId, stampId ->
                                     viewModel.createNotebook(title, envId, stampId)
-                                    navController.popBackStack() // Возвращаемся на главную
+                                    navController.popBackStack()
                                 }
                             )
                         }

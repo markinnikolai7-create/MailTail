@@ -182,7 +182,9 @@ fun NotebookCard(
                     Image(
                         painter = painterResource(id = stampRes),
                         contentDescription = "Штамп",
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier
+                            .size(22.dp)
+                            .offset(y = (-4).dp), // Смещение для миниатюры на карточке
                         contentScale = ContentScale.Fit
                     )
                 }

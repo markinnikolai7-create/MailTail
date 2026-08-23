@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 val TextSecondary = Color(0xFF979797)
 val TextPrimary = Color(0xFF525252)
 val AccentPink = Color(0xFFEF659B)
-val AppBackground = Color(0xFFFEF7F9)
+val AppBackground = Color(0xFFFEF7FA)
 val PostSurface = Color(0xFFFEFEFE)
 val BorderPink = Color(0xFFFAEDF0)
 val BottomNavBackground = Color(0xFFFDDBE7)

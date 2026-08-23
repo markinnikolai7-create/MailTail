@@ -111,14 +111,13 @@ fun CreateNotebookScreen(
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // ПРЕДПРОСМОТР СВЕРХУ
+            // ПРЕДПРОСМОТР СВЕРХУ (в CreateNotebookScreen)
             Box(
                 modifier = Modifier
                     .padding(top = 16.dp, bottom = 32.dp)
                     .size(260.dp, 170.dp),
                 contentAlignment = Alignment.Center
             ) {
-                // Картинка выбранного конверта
                 Image(
                     painter = painterResource(id = envelopeDrawables[selectedEnvelopeIndex]),
                     contentDescription = "Конверт",
@@ -126,12 +125,14 @@ fun CreateNotebookScreen(
                     contentScale = ContentScale.Fit
                 )
 
-                // Если выбран штамп (индекс >= 0), накладываем его поверх конверта по центру
                 if (selectedStampIndex >= 0) {
                     Image(
                         painter = painterResource(id = stampDrawables[selectedStampIndex]),
                         contentDescription = "Штамп",
-                        modifier = Modifier.size(64.dp),
+                        // Смещаем штамп чуть выше центра, на самый кончик конверта
+                        modifier = Modifier
+                            .size(56.dp)
+                            .offset(y = (-14).dp),
                         contentScale = ContentScale.Fit
                     )
                 }

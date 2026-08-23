@@ -8,7 +8,7 @@ data class NotebookEntity(
     @PrimaryKey val id: String,
     val title: String,
     val memberCount: Int,
-    val creatorName: String = "Я", // Создатель блокнота
-    val envelopeId: Int = 0, // Индекс выбранного конверта
-    val stampId: Int = -1    // Индекс штампа (-1 значит без штампа)
+    val creatorName: String = "Я",
+    val envelopeId: Int = 0,
+    val stampId: Int = -1
 )

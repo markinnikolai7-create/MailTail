@@ -4,20 +4,37 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.curly.mailtail.data.local.entity.PostEntity
 import kotlinx.coroutines.flow.Flow
+import com.curly.mailtail.data.local.entity.CommentEntity
+import com.curly.mailtail.data.local.entity.ReactionEntity
 
 @Dao
 interface PostDao {
-    // Сохранить новый пост
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPost(post: PostEntity)
 
-    // Получить все посты конкретного блокнота, отсортированные по дате (по убыванию)
+    @Update
+    suspend fun updatePost(post: PostEntity) // Редактирование поста
+
     @Query("SELECT * FROM posts WHERE notebook_id = :notebookId ORDER BY dateMillis DESC")
     fun getPostsByNotebookId(notebookId: String): Flow<List<PostEntity>>
 
-    // Удалить конкретный пост
-    @Query("DELETE FROM posts WHERE id = :postId")
-    suspend fun deletePostById(postId: String)
+    // Комментарии
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertComment(comment: CommentEntity)
+
+    @Query("SELECT * FROM comments WHERE post_id = :postId ORDER BY dateMillis ASC")
+    fun getCommentsForPost(postId: String): Flow<List<CommentEntity>>
+
+    // Реакции
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertReaction(reaction: ReactionEntity)
+
+    @Query("SELECT * FROM reactions WHERE post_id = :postId")
+    fun getReactionsForPost(postId: String): Flow<List<ReactionEntity>>
+
+    @Query("DELETE FROM reactions WHERE post_id = :postId AND authorName = :authorName AND emoji = :emoji")
+    suspend fun removeReaction(postId: String, authorName: String, emoji: String)
 }

@@ -25,6 +25,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 
+import android.content.ContentValues
+import android.content.Context
+import android.os.Environment
+import android.provider.MediaStore
+import android.widget.Toast
+
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Download
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotebookScreen(
@@ -76,7 +88,7 @@ fun NotebookScreen(
 }
 
 @Composable
-fun PostBubble(post: PostEntity) {
+fun PostBubble(post: PostEntity, onImageClick: (Uri) -> Unit) {
     val formatter = SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault())
     val dateString = formatter.format(Date(post.dateMillis))
 
@@ -134,5 +146,101 @@ fun PostBubble(post: PostEntity) {
                 modifier = Modifier.align(Alignment.End)
             )
         }
+    }
+}
+
+fun saveImageToGallery(context: Context, sourceUri: Uri) {
+    try {
+        val resolver = context.contentResolver
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "MailTail_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            // Папка, в которую сохранится фото
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/MailTail")
+        }
+
+        val imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+        if (imageUri != null) {
+            resolver.openInputStream(sourceUri)?.use { input ->
+                resolver.openOutputStream(imageUri)?.use { output ->
+                    input.copyTo(output)
+                }
+            }
+            Toast.makeText(context, "Фото сохранено в галерею!", Toast.LENGTH_SHORT).show()
+        }
+    } catch (e: Exception) {
+        Toast.makeText(context, "Ошибка сохранения", Toast.LENGTH_SHORT).show()
+    }
+}
+
+@Composable
+fun FullScreenImageDialog(
+    uri: Uri,
+    onDismiss: () -> Unit,
+    onDownload: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        // Заставляем диалог занять весь экран
+        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = true)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black) // Черный фон как в галереях
+        ) {
+            // Сама картинка
+            AsyncImage(
+                model = uri,
+                contentDescription = "Полноэкранное фото",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit // Изображение помещается целиком
+            )
+
+            // Верхняя панель с кнопками
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 32.dp, start = 16.dp, end = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Default.Close, contentDescription = "Закрыть", tint = Color.White)
+                }
+                IconButton(onClick = onDownload) {
+                    Icon(Icons.Default.Download, contentDescription = "Скачать", tint = Color.White)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NotebookScreen( /* ... твои параметры ... */ ) {
+    val posts by viewModel.posts.collectAsState()
+    val context = LocalContext.current
+
+    // Состояние: хранит URI картинки, которую мы открыли на весь экран. Если null — ничего не открыто.
+    var expandedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    Scaffold( /* ... */ ) { innerPadding ->
+        // ... твой LazyColumn ...
+        items(posts.sortedByDescending { it.dateMillis }) { post ->
+            // Передаем лямбду, которая срабатывает при клике на фото
+            PostBubble(post = post, onImageClick = { clickedUri ->
+                expandedImageUri = clickedUri
+            })
+        }
+    }
+
+    // Если переменная не null, показываем диалог
+    expandedImageUri?.let { uri ->
+        FullScreenImageDialog(
+            uri = uri,
+            onDismiss = { expandedImageUri = null }, // Закрываем
+            onDownload = { saveImageToGallery(context, uri) } // Качаем
+        )
     }
 }

@@ -16,7 +16,7 @@ import com.curly.mailtail.data.local.entity.ReactionEntity
         CommentEntity::class,
         ReactionEntity::class
     ],
-    version = 3, // Поднимаем версию базы данных
+    version = 4, // Поднимаем версию базы данных
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

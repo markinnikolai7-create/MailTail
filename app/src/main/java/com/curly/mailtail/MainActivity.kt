@@ -23,6 +23,9 @@ import com.curly.mailtail.presentation.splash.SplashScreen
 import com.curly.mailtail.presentation.ui.theme.MailTailTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+import com.curly.mailtail.presentation.home.CreateNotebookScreen
+import androidx.hilt.navigation.compose.hiltViewModel
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,20 +58,25 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 onNavigateToNotebook = { notebookId ->
                                     navController.navigate("notebook/$notebookId")
+                                },
+                                // ДОБАВИЛИ ПЕРЕХОД НА КОНСТРУКТОР:
+                                onNavigateToCreateNotebook = {
+                                    navController.navigate("create_notebook")
                                 }
                             )
                         }
 
-                        // 3. ЭКРАН БЛОКНОТА
-                        composable(
-                            route = "notebook/{notebookId}",
-                            arguments = listOf(navArgument("notebookId") { type = NavType.StringType })
-                        ) { backStackEntry ->
-                            val notebookId = backStackEntry.arguments?.getString("notebookId") ?: ""
+                        // ЭКРАН КОНСТРУКТОРА БЛОКНОТА
+                        composable("create_notebook") {
+                            // hiltViewModel() теперь загорится зеленым благодаря импорту
+                            val viewModel: com.curly.mailtail.presentation.home.HomeViewModel = hiltViewModel()
 
-                            NotebookScreen(
+                            com.curly.mailtail.presentation.home.CreateNotebookScreen(
                                 onNavigateBack = { navController.popBackStack() },
-                                onNavigateToCreatePost = { navController.navigate("create_post/$notebookId") }
+                                onNotebookCreated = { title, envId, stampId ->
+                                    viewModel.createNotebook(title, envId, stampId)
+                                    navController.popBackStack() // Возвращаемся на главную
+                                }
                             )
                         }
 
@@ -82,6 +90,30 @@ class MainActivity : ComponentActivity() {
                             CreatePostScreen(
                                 notebookId = notebookId,
                                 onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable("home") {
+                            HomeScreen(
+                                onNavigateToNotebook = { notebookId ->
+                                    navController.navigate("notebook/$notebookId")
+                                },
+                                // ТЕПЕРЬ ПЕРЕХОДИМ НА ЭКРАН КОНСТРУКТОРА
+                                onNavigateToCreateNotebook = {
+                                    navController.navigate("create_notebook")
+                                }
+                            )
+                        }
+
+                        // ЭКРАН КОНСТРУКТОРА БЛОКНОТА
+                        composable("create_notebook") {
+                            val viewModel: com.curly.mailtail.presentation.home.HomeViewModel = hiltViewModel()
+                            CreateNotebookScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNotebookCreated = { title, envId, stampId ->
+                                    viewModel.createNotebook(title, envId, stampId)
+                                    navController.popBackStack() // Возвращаемся домой
+                                }
                             )
                         }
                     }

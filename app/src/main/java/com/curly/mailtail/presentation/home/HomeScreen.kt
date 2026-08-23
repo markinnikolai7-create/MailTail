@@ -1,5 +1,6 @@
 package com.curly.mailtail.presentation.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,35 +24,37 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.curly.mailtail.R
 import com.curly.mailtail.data.local.entity.NotebookEntity
 import com.curly.mailtail.presentation.ui.theme.*
 
 @Composable
 fun HomeScreen(
     onNavigateToNotebook: (String) -> Unit,
+    onNavigateToCreateNotebook: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val notebooks by viewModel.notebooks.collectAsState()
-    var showCreateDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = AppBackground,
         topBar = {
-            // Кастомная верхняя панель (строго по центру, колокольчик крупнее)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(64.dp)
                     .background(AppBackground),
-                contentAlignment = Alignment.Center // Выравниваем всё строго по центру
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "TailMail",
@@ -61,29 +64,28 @@ fun HomeScreen(
                 )
 
                 IconButton(
-                    onClick = { /* TODO: Экран уведомлений */ },
+                    onClick = { /* TODO: Уведомления */ },
                     modifier = Modifier
-                        .align(Alignment.CenterEnd) // Колокольчик прижат вправо, но отцентрован по вертикали
+                        .align(Alignment.CenterEnd)
                         .padding(end = 12.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Notifications,
                         contentDescription = "Уведомления",
                         tint = AccentPink,
-                        modifier = Modifier.size(32.dp) // Увеличили размер колокольчика
+                        modifier = Modifier.size(32.dp)
                     )
                 }
             }
         },
         bottomBar = {
-            // Кастомное нижнее меню (компактное, иконки ровно по центру)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp) // Сильно уменьшили высоту (было 80dp)
+                    .height(56.dp)
                     .background(BottomNavBackground),
-                horizontalArrangement = Arrangement.SpaceEvenly, // Равномерно распределяем по горизонтали
-                verticalAlignment = Alignment.CenterVertically // Выравниваем строго по центру по вертикали
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { /* Уже тут */ }) {
                     Icon(
@@ -93,7 +95,7 @@ fun HomeScreen(
                         modifier = Modifier.size(32.dp)
                     )
                 }
-                IconButton(onClick = { /* TODO: Профиль */ }) {
+                IconButton(onClick = { /* Профиль */ }) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Профиль",
@@ -109,7 +111,6 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
-            // Увеличили отступ сверху до 32.dp, чтобы отдалить TailMail от первого блокнота
             contentPadding = PaddingValues(top = 32.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -121,19 +122,9 @@ fun HomeScreen(
             }
 
             item {
-                CreateNotebookButton(onClick = { showCreateDialog = true })
+                CreateNotebookButton(onClick = onNavigateToCreateNotebook)
             }
         }
-    }
-
-    if (showCreateDialog) {
-        CreateNotebookDialog(
-            onDismiss = { showCreateDialog = false },
-            onCreate = { title ->
-                viewModel.createNotebook(title)
-                showCreateDialog = false
-            }
-        )
     }
 }
 
@@ -143,6 +134,22 @@ fun NotebookCard(
     onClick: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
+
+    // Списки ресурсов для отображения выбранного конверта и штампа
+    val envelopeDrawables = listOf(
+        R.drawable.env_tirq, R.drawable.env_tirq_mesh, R.drawable.env_blue,
+        R.drawable.env_blue_mesh, R.drawable.env_yellow_mesh, R.drawable.env_green,
+        R.drawable.env_green_mesh, R.drawable.env_orange_mesh, R.drawable.env_peach,
+        R.drawable.env_peach_mesh, R.drawable.env_pink, R.drawable.env_violet,
+        R.drawable.env_violet_mesh
+    )
+    val stampDrawables = listOf(
+        R.drawable.stamp_star, R.drawable.stamp_moon,
+        R.drawable.stamp_heart, R.drawable.stamp_blue_lightning
+    )
+
+    // Безопасно получаем картинку (если индекс вдруг выходит за рамки, берем первую)
+    val envelopeRes = envelopeDrawables.getOrElse(notebook.envelopeId) { R.drawable.env_blue }
 
     Card(
         onClick = onClick,
@@ -157,12 +164,29 @@ fun NotebookCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Превью выбранного конверта со штампом на карточке
             Box(
                 modifier = Modifier
                     .size(80.dp, 60.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFC3E0F7))
-            )
+                    .clip(RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = envelopeRes),
+                    contentDescription = "Конверт",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                if (notebook.stampId >= 0) {
+                    val stampRes = stampDrawables.getOrElse(notebook.stampId) { R.drawable.stamp_heart }
+                    Image(
+                        painter = painterResource(id = stampRes),
+                        contentDescription = "Штамп",
+                        modifier = Modifier.size(24.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -212,13 +236,11 @@ fun NotebookCard(
                 }
             }
 
-            // Выпадающее меню
             Box {
                 IconButton(onClick = { showMenu = true }) {
                     Icon(Icons.Default.MoreHoriz, contentDescription = "Меню", tint = AccentPink)
                 }
 
-                // Переопределяем форму специально для этого меню
                 MaterialTheme(
                     shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp))
                 ) {
@@ -285,43 +307,4 @@ fun Modifier.dashedBorder(color: Color, strokeWidth: Dp, cornerRadius: Dp) = thi
             cornerRadius = CornerRadius(cornerRadius.toPx(), cornerRadius.toPx())
         )
     }
-}
-
-@Composable
-fun CreateNotebookDialog(
-    onDismiss: () -> Unit,
-    onCreate: (String) -> Unit
-) {
-    var titleText by remember { mutableStateOf("") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Новый дневник", color = TextPrimary) },
-        text = {
-            OutlinedTextField(
-                value = titleText,
-                onValueChange = { titleText = it },
-                label = { Text("Название", color = TextSecondary) },
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary,
-                    cursorColor = AccentPink,
-                    focusedBorderColor = AccentPink
-                )
-            )
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { if (titleText.isNotBlank()) onCreate(titleText) },
-                colors = ButtonDefaults.textButtonColors(contentColor = AccentPink)
-            ) { Text("Создать") }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(contentColor = TextSecondary)
-            ) { Text("Отмена") }
-        },
-        containerColor = AppBackground
-    )
 }

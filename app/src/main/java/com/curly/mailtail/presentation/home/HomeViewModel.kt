@@ -27,12 +27,15 @@ class HomeViewModel @Inject constructor(
         )
 
     // Функция для создания блокнота. Запускается в корутине (viewModelScope)
-    fun createNotebook(title: String) {
+    fun createNotebook(title: String, envelopeId: Int, stampId: Int) {
         viewModelScope.launch {
             val newNotebook = NotebookEntity(
-                id = UUID.randomUUID().toString(), // Генерируем уникальный случайный ID
+                id = UUID.randomUUID().toString(),
                 title = title,
-                memberCount = 1 // Создатель по умолчанию один
+                memberCount = 1,
+                creatorName = "Я",
+                envelopeId = envelopeId,
+                stampId = stampId
             )
             repository.createNotebook(newNotebook)
         }

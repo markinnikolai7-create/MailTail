@@ -32,7 +32,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.curly.mailtail.data.local.entity.NotebookEntity
 import com.curly.mailtail.presentation.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToNotebook: (String) -> Unit,
@@ -46,58 +45,62 @@ fun HomeScreen(
         modifier = modifier.fillMaxSize(),
         containerColor = AppBackground,
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "TailMail",
-                        color = AccentPink,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
+            // Кастомная верхняя панель (строго по центру, колокольчик крупнее)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .background(AppBackground),
+                contentAlignment = Alignment.Center // Выравниваем всё строго по центру
+            ) {
+                Text(
+                    text = "TailMail",
+                    color = AccentPink,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp
+                )
+
+                IconButton(
+                    onClick = { /* TODO: Экран уведомлений */ },
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd) // Колокольчик прижат вправо, но отцентрован по вертикали
+                        .padding(end = 12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Notifications,
+                        contentDescription = "Уведомления",
+                        tint = AccentPink,
+                        modifier = Modifier.size(32.dp) // Увеличили размер колокольчика
                     )
-                },
-                actions = {
-                    // Иконка уведомлений без точки и полая (Outlined)
-                    IconButton(onClick = { /* TODO: Экран уведомлений */ }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Notifications,
-                            contentDescription = "Уведомления",
-                            tint = AccentPink
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = AppBackground
-                ),
-                // Делаем шапку чуть более компактной
-                modifier = Modifier.height(56.dp)
-            )
+                }
+            }
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = BottomNavBackground,
-                contentColor = AccentPink,
-                modifier = Modifier.height(64.dp) // Уменьшаем высоту подвала (стандарт 80dp)
+            // Кастомное нижнее меню (компактное, иконки ровно по центру)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp) // Сильно уменьшили высоту (было 80dp)
+                    .background(BottomNavBackground),
+                horizontalArrangement = Arrangement.SpaceEvenly, // Равномерно распределяем по горизонтали
+                verticalAlignment = Alignment.CenterVertically // Выравниваем строго по центру по вертикали
             ) {
-                NavigationBarItem(
-                    selected = true,
-                    onClick = { /* Уже тут */ },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Главная", modifier = Modifier.size(28.dp)) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = AccentPink,
-                        unselectedIconColor = IconUnselected,
-                        indicatorColor = Color.Transparent // Убираем стандартный овал
+                IconButton(onClick = { /* Уже тут */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = "Главная",
+                        tint = AccentPink,
+                        modifier = Modifier.size(32.dp)
                     )
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { /* TODO: Профиль */ },
-                    icon = { Icon(Icons.Default.Person, contentDescription = "Профиль", modifier = Modifier.size(28.dp)) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = AccentPink,
-                        unselectedIconColor = IconUnselected,
-                        indicatorColor = Color.Transparent
+                }
+                IconButton(onClick = { /* TODO: Профиль */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Профиль",
+                        tint = IconUnselected,
+                        modifier = Modifier.size(32.dp)
                     )
-                )
+                }
             }
         }
     ) { innerPadding ->
@@ -106,8 +109,8 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
-            // Уменьшили отступы сверху и снизу для большего пространства
-            contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
+            // Увеличили отступ сверху до 32.dp, чтобы отдалить TailMail от первого блокнота
+            contentPadding = PaddingValues(top = 32.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(notebooks) { notebook ->
@@ -170,7 +173,6 @@ fun NotebookCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
-                // Заменили 12 на 0 записей
                 Text(
                     text = "0 записей",
                     color = TextSecondary,
@@ -210,7 +212,6 @@ fun NotebookCard(
                 }
             }
 
-            // Выпадающее меню
             Box {
                 IconButton(onClick = { showMenu = true }) {
                     Icon(Icons.Default.MoreHoriz, contentDescription = "Меню", tint = AccentPink)
@@ -218,7 +219,7 @@ fun NotebookCard(
                 DropdownMenu(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
-                    modifier = Modifier.background(BottomNavBackground) // Розовый фон меню
+                    modifier = Modifier.background(BottomNavBackground)
                 ) {
                     DropdownMenuItem(
                         text = { Text("Редактировать", color = AccentPink) },
@@ -233,7 +234,7 @@ fun NotebookCard(
                             Text(
                                 "Удалить",
                                 color = AccentPink,
-                                textDecoration = TextDecoration.Underline // Подчеркивание
+                                textDecoration = TextDecoration.Underline
                             )
                         },
                         onClick = { showMenu = false }
@@ -294,7 +295,6 @@ fun CreateNotebookDialog(
                 onValueChange = { titleText = it },
                 label = { Text("Название", color = TextSecondary) },
                 singleLine = true,
-                // Жестко задаем цвет текста
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = TextPrimary,
                     unfocusedTextColor = TextPrimary,

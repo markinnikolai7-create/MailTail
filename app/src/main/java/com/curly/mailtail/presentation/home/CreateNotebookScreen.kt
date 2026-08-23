@@ -129,10 +129,10 @@ fun CreateNotebookScreen(
                     Image(
                         painter = painterResource(id = stampDrawables[selectedStampIndex]),
                         contentDescription = "Штамп",
-                        // Смещаем штамп чуть выше центра, на самый кончик конверта
+                        // Сменили с минуса на меньшее значение или плюс, чтобы опустить ниже (экспериментируй с цифрой)
                         modifier = Modifier
                             .size(56.dp)
-                            .offset(y = (-14).dp),
+                            .offset(y = 24.dp), // Опустили ниже центра на уголок
                         contentScale = ContentScale.Fit
                     )
                 }

@@ -14,9 +14,9 @@ import androidx.compose.ui.graphics.Color
 private val DarkColorScheme = darkColorScheme(
 //    primary = PrimaryBlue,
 //    secondary = PrimaryBlueVariant,
-    background = DarkBackground,
+    background = AppBackground,
     surface = DarkSurface,
-    onBackground = DarkOnBackground,
+    onBackground = AppBackground,
     onSurface = DarkOnSurface
 )
 

@@ -184,7 +184,7 @@ fun NotebookCard(
                         contentDescription = "Штамп",
                         modifier = Modifier
                             .size(22.dp)
-                            .offset(y = (-4).dp), // Смещение для миниатюры на карточке
+                            .offset(y = 12.dp), // Опустили ниже для маленькой карточки
                         contentScale = ContentScale.Fit
                     )
                 }

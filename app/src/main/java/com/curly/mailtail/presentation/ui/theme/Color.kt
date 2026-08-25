@@ -2,18 +2,23 @@ package com.curly.mailtail.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Твоя новая палитра
-val TextSecondary = Color(0xFF979797)
-val TextPrimary = Color(0xFF525252)
-val AccentPink = Color(0xFFEF659B)
-val AppBackground = Color(0xFFFEF7FA)
-val PostSurface = Color(0xFFFEFEFE)
-val BorderPink = Color(0xFFFAEDF0)
-val BottomNavBackground = Color(0xFFFDDBE7)
-val IconUnselected = Color(0xFFF9B5CF)
+// === ОБЩИЕ ЦВЕТА ===
+val AccentPink = Color(0xFFEF659B) // текст и элементы (акцент)
 
-// Цвета для Тёмной темы (пока оставляем базовыми или можем потом адаптировать)
-val DarkBackground = Color(0xFF121212)
-val DarkSurface = Color(0xFF1E1E1E)
-val DarkOnBackground = Color(0xFFE0E0E0)
-val DarkOnSurface = Color(0xFFFFFFFF)
+// === СВЕТЛАЯ ТЕМА ===
+val LightBackground = Color(0xFFFEF7FA)
+val LightSurface = Color(0xFFFFFFFF) // фон для постов (обычно белый)
+val LightBottomNav = Color(0xFFFFFFFF) // нижняя менюшка
+val LightTextPrimary = Color(0xFF525252)
+val LightTextSecondary = Color(0xFF979797)
+val LightBorder = Color(0xFFEF659B) // обводка
+val LightIconUnselected = Color(0xFFD9D9D9) // иконка погасла
+
+// === ТЕМНАЯ ТЕМА ===
+val DarkBackground = Color(0xFF1B1C25) // фон
+val DarkSurface = Color(0xFF292C34) // фон для постов
+val DarkBottomNav = Color(0xFF27212E) // нижняя менюшка
+val DarkTextPrimary = Color(0xFFFEF7F9) // текст
+val DarkTextSecondary = Color(0xFF979797) // дополнительный текст
+val DarkBorder = Color(0xFF41424B) // обводка
+val DarkIconUnselected = Color(0xFF673751) // иконка погасла

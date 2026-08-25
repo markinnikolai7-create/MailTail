@@ -31,10 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.curly.mailtail.R
 import com.curly.mailtail.presentation.ui.theme.AccentPink
-import com.curly.mailtail.presentation.ui.theme.AppBackground
-import com.curly.mailtail.presentation.ui.theme.PostSurface
-import com.curly.mailtail.presentation.ui.theme.TextPrimary
-import com.curly.mailtail.presentation.ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,33 +43,21 @@ fun CreateNotebookScreen(
     var selectedStampIndex by remember { mutableIntStateOf(-1) } // -1 означает без штампа
     var notebookTitle by remember { mutableStateOf("") }
 
-    // Список твоих конвертов из drawable (без back_price)
     val envelopeDrawables = listOf(
-        R.drawable.env_tirq,
-        R.drawable.env_tirq_mesh,
-        R.drawable.env_blue,
-        R.drawable.env_blue_mesh,
-        R.drawable.env_yellow_mesh,
-        R.drawable.env_green,
-        R.drawable.env_green_mesh,
-        R.drawable.env_orange_mesh,
-        R.drawable.env_peach,
-        R.drawable.env_peach_mesh,
-        R.drawable.env_pink,
-        R.drawable.env_violet,
+        R.drawable.env_tirq, R.drawable.env_tirq_mesh, R.drawable.env_blue,
+        R.drawable.env_blue_mesh, R.drawable.env_yellow_mesh, R.drawable.env_green,
+        R.drawable.env_green_mesh, R.drawable.env_orange_mesh, R.drawable.env_peach,
+        R.drawable.env_peach_mesh, R.drawable.env_pink, R.drawable.env_violet,
         R.drawable.env_violet_mesh
     )
 
-    // Список штампов из drawable (индекс -1 — заглушка "без штампа")
     val stampDrawables = listOf(
-        R.drawable.stamp_star,
-        R.drawable.stamp_moon,
-        R.drawable.stamp_heart,
-        R.drawable.stamp_blue_lightning
+        R.drawable.stamp_star, R.drawable.stamp_moon,
+        R.drawable.stamp_heart, R.drawable.stamp_blue_lightning
     )
 
     Scaffold(
-        containerColor = AppBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
@@ -88,7 +72,7 @@ fun CreateNotebookScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад", tint = AccentPink)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = AppBackground)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         floatingActionButton = {
@@ -111,7 +95,6 @@ fun CreateNotebookScreen(
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // ПРЕДПРОСМОТР СВЕРХУ (в CreateNotebookScreen)
             Box(
                 modifier = Modifier
                     .padding(top = 16.dp, bottom = 32.dp)
@@ -129,16 +112,14 @@ fun CreateNotebookScreen(
                     Image(
                         painter = painterResource(id = stampDrawables[selectedStampIndex]),
                         contentDescription = "Штамп",
-                        // Сменили с минуса на меньшее значение или плюс, чтобы опустить ниже (экспериментируй с цифрой)
                         modifier = Modifier
                             .size(56.dp)
-                            .offset(y = 24.dp), // Опустили ниже центра на уголок
+                            .offset(y = 24.dp),
                         contentScale = ContentScale.Fit
                     )
                 }
             }
 
-            // НИЖНЯЯ ЧАСТЬ С ПЛАВНОЙ СМЕНОЙ ШАГОВ
             AnimatedContent(
                 targetState = currentStep,
                 transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
@@ -146,7 +127,6 @@ fun CreateNotebookScreen(
             ) { step ->
                 when (step) {
                     1 -> {
-                        // ШАГ 1: Сетка выбора конвертов
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(3),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -180,14 +160,12 @@ fun CreateNotebookScreen(
                         }
                     }
                     2 -> {
-                        // ШАГ 2: Сетка выбора штампов
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(3),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            // Вариант 1: Без штампа (перечеркнутый круг)
                             item {
                                 StampItem(
                                     isSelected = selectedStampIndex == -1,
@@ -201,7 +179,6 @@ fun CreateNotebookScreen(
                                     )
                                 }
                             }
-                            // Варианты штампов из drawable
                             items(stampDrawables.size) { index ->
                                 val isSelected = selectedStampIndex == index
                                 StampItem(
@@ -219,22 +196,23 @@ fun CreateNotebookScreen(
                         }
                     }
                     3 -> {
-                        // ШАГ 3: Ввод названия дневника
                         Column(modifier = Modifier.fillMaxWidth()) {
                             OutlinedTextField(
                                 value = notebookTitle,
                                 onValueChange = { notebookTitle = it },
-                                placeholder = { Text("Название дневника", color = TextSecondary) },
+                                placeholder = {
+                                    Text("Название дневника", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(16.dp),
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = PostSurface,
-                                    unfocusedContainerColor = PostSurface,
+                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                                     focusedBorderColor = AccentPink,
                                     unfocusedBorderColor = Color.Transparent,
-                                    focusedTextColor = TextPrimary,
-                                    unfocusedTextColor = TextPrimary
+                                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground
                                 )
                             )
                             Spacer(modifier = Modifier.height(24.dp))
@@ -267,7 +245,7 @@ fun StampItem(isSelected: Boolean, onClick: () -> Unit, content: @Composable () 
         modifier = Modifier
             .aspectRatio(1f)
             .clip(CircleShape)
-            .background(if (isSelected) AccentPink.copy(alpha = 0.15f) else PostSurface)
+            .background(if (isSelected) AccentPink.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface)
             .border(
                 width = if (isSelected) 2.dp else 0.dp,
                 color = if (isSelected) AccentPink else Color.Transparent,

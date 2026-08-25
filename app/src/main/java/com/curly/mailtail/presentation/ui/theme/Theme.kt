@@ -1,45 +1,59 @@
 package com.curly.mailtail.presentation.ui.theme
 
-import android.os.Build
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-//    primary = PrimaryBlue,
-//    secondary = PrimaryBlueVariant,
-    background = AppBackground,
+    primary = AccentPink,
+    background = DarkBackground,
     surface = DarkSurface,
-    onBackground = AppBackground,
-    onSurface = DarkOnSurface
+    surfaceVariant = DarkBottomNav,
+    onBackground = DarkTextPrimary,
+    onSurface = DarkTextPrimary,
+    onSurfaceVariant = DarkTextSecondary,
+    outline = DarkBorder,
+    outlineVariant = DarkIconUnselected
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = AccentPink,
-    onPrimary = Color.White,
-    background = AppBackground,
-    onBackground = TextPrimary,
-    surface = PostSurface,
-    onSurface = TextPrimary,
-    surfaceVariant = BottomNavBackground,
-    onSurfaceVariant = TextSecondary,
-    outline = BorderPink
+    background = LightBackground,
+    surface = LightSurface,
+    surfaceVariant = LightBottomNav,
+    onBackground = LightTextPrimary,
+    onSurface = LightTextPrimary,
+    onSurfaceVariant = LightTextSecondary,
+    outline = LightBorder,
+    outlineVariant = LightIconUnselected
 )
 
 @Composable
 fun MailTailTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Отключаем Dynamic Color по умолчанию, чтобы использовать свои цвета ТЗ
-    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val view = LocalView.current
+
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            // Верхняя статус-бар панель (где часы и батарея)
+            window.statusBarColor = colorScheme.background.toArgb()
+            // Нижняя панель навигации (где кнопки телефона)
+            window.navigationBarColor = colorScheme.surfaceVariant.toArgb()
+            // Цвет иконок статуса (черные на светлом, белые на темном)
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+        }
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

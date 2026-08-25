@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.curly.mailtail.R
 import com.curly.mailtail.data.local.entity.NotebookEntity
-import com.curly.mailtail.presentation.ui.theme.*
+import com.curly.mailtail.presentation.ui.theme.AccentPink
 
 @Composable
 fun HomeScreen(
@@ -47,13 +47,13 @@ fun HomeScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = AppBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(64.dp)
-                    .background(AppBackground),
+                    .background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -83,7 +83,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .background(BottomNavBackground),
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -99,7 +99,7 @@ fun HomeScreen(
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Профиль",
-                        tint = IconUnselected,
+                        tint = MaterialTheme.colorScheme.outlineVariant,
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -135,7 +135,6 @@ fun NotebookCard(
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
-    // Списки ресурсов для отображения выбранного конверта и штампа
     val envelopeDrawables = listOf(
         R.drawable.env_tirq, R.drawable.env_tirq_mesh, R.drawable.env_blue,
         R.drawable.env_blue_mesh, R.drawable.env_yellow_mesh, R.drawable.env_green,
@@ -148,14 +147,13 @@ fun NotebookCard(
         R.drawable.stamp_heart, R.drawable.stamp_blue_lightning
     )
 
-    // Безопасно получаем картинку (если индекс вдруг выходит за рамки, берем первую)
     val envelopeRes = envelopeDrawables.getOrElse(notebook.envelopeId) { R.drawable.env_blue }
 
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = PostSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -164,7 +162,6 @@ fun NotebookCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Превью выбранного конверта со штампом на карточке
             Box(
                 modifier = Modifier
                     .size(80.dp, 60.dp)
@@ -184,7 +181,7 @@ fun NotebookCard(
                         contentDescription = "Штамп",
                         modifier = Modifier
                             .size(22.dp)
-                            .offset(y = 12.dp), // Опустили ниже для маленькой карточки
+                            .offset(y = 12.dp),
                         contentScale = ContentScale.Fit
                     )
                 }
@@ -195,13 +192,13 @@ fun NotebookCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = notebook.title,
-                    color = TextPrimary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = "0 записей",
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium
                 )
 
@@ -249,7 +246,7 @@ fun NotebookCard(
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false },
-                        modifier = Modifier.background(BottomNavBackground)
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         DropdownMenuItem(
                             text = { Text("Редактировать", color = AccentPink) },

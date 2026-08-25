@@ -62,4 +62,8 @@ class MailTailRepositoryImpl @Inject constructor(
     override suspend fun removeReaction(postId: String, authorName: String, emoji: String) {
         postDao.removeReaction(postId, authorName, emoji)
     }
+
+    override suspend fun deleteNotebookById(notebookId: String) {
+        notebookDao.deleteNotebookById(notebookId)
+    }
 }

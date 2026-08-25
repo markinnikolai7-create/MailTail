@@ -4,10 +4,10 @@
     android:height="108dp"
     android:viewportWidth="210"
     android:viewportHeight="210">
-  <group android:scaleX="0.61"
-      android:scaleY="0.61"
-      android:translateX="40.95"
-      android:translateY="40.95">
+  <group android:scaleX="0.58"
+      android:scaleY="0.58"
+      android:translateX="44.1"
+      android:translateY="44.1">
     <path
         android:pathData="M47.22,121.03h114v66.08h-114z"
         android:strokeLineJoin="round"

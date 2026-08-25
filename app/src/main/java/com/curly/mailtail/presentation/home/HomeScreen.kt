@@ -117,7 +117,8 @@ fun HomeScreen(
             items(notebooks) { notebook ->
                 NotebookCard(
                     notebook = notebook,
-                    onClick = { onNavigateToNotebook(notebook.id) }
+                    onClick = { onNavigateToNotebook(notebook.id) },
+                    onDeleteClick = { viewModel.deleteNotebook(notebook.id) }
                 )
             }
 
@@ -131,7 +132,8 @@ fun HomeScreen(
 @Composable
 fun NotebookCard(
     notebook: NotebookEntity,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -264,7 +266,10 @@ fun NotebookCard(
                                     textDecoration = TextDecoration.Underline
                                 )
                             },
-                            onClick = { showMenu = false }
+                            onClick = {
+                                showMenu = false
+                                onDeleteClick()
+                            }
                         )
                     }
                 }

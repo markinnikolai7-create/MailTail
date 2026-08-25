@@ -21,4 +21,7 @@ interface MailTailRepository {
     fun getReactionsForPost(postId: String): Flow<List<ReactionEntity>>
     suspend fun addReaction(reaction: ReactionEntity)
     suspend fun removeReaction(postId: String, authorName: String, emoji: String)
+
+    suspend fun deleteNotebookById(notebookId: String)
+    
 }

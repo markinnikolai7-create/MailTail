@@ -40,4 +40,10 @@ class HomeViewModel @Inject constructor(
             repository.createNotebook(newNotebook)
         }
     }
+
+    fun deleteNotebook(notebookId: String) {
+        viewModelScope.launch {
+            repository.deleteNotebookById(notebookId)
+        }
+    }
 }

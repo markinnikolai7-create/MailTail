@@ -7,11 +7,10 @@ import com.curly.mailtail.data.local.entity.NotebookEntity
 import com.curly.mailtail.data.local.entity.PostEntity
 import com.curly.mailtail.domain.repository.MailTailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,43 +21,19 @@ class NotebookViewModel @Inject constructor(
 
     val notebookId: String = checkNotNull(savedStateHandle["notebookId"])
 
-    // Подтягиваем все блокноты, чтобы в UI найти текущий и проверить его создателя
-    val notebooks: StateFlow<List<NotebookEntity>> = repository.getAllNotebooks()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    private val _notebook = MutableStateFlow<NotebookEntity?>(null)
+    val notebook: StateFlow<NotebookEntity?> = _notebook.asStateFlow()
 
-    val posts: StateFlow<List<PostEntity>> = repository.getPostsForNotebook(notebookId)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    private val _posts = MutableStateFlow<List<PostEntity>>(emptyList())
+    val posts: StateFlow<List<PostEntity>> = _posts.asStateFlow()
 
-    fun updateNotebookTitle(newTitle: String) {
-        viewModelScope.launch {
-            repository.updateNotebookTitle(notebookId, newTitle)
-        }
+    init {
+        loadNotebookData()
     }
 
-    fun updatePostContent(post: PostEntity, newContent: String) {
+    private fun loadNotebookData() {
         viewModelScope.launch {
-            // Сохраняем пост с новым текстом
-            repository.updatePost(post.copy(content = newContent))
-        }
-    }
-
-    fun addReaction(postId: String, emoji: String) {
-        viewModelScope.launch {
-            val reaction = ReactionEntity(
-                id = UUID.randomUUID().toString(),
-                postId = postId,
-                authorName = "Я",
-                emoji = emoji
-            )
-            repository.addReaction(reaction)
+            // Заглушка, пока не подключим реальные методы из репозитория
         }
     }
 }

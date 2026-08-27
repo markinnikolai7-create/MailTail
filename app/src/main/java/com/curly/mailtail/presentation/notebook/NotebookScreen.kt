@@ -1,5 +1,6 @@
 package com.curly.mailtail.presentation.notebook
 
+import com.curly.mailtail.data.local.entity.NotebookEntity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,9 +26,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.curly.mailtail.data.local.entity.PostEntity
 import com.curly.mailtail.presentation.ui.theme.AccentPink
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.collectAsState
 
 @Composable
 fun NotebookScreen(
@@ -130,7 +128,7 @@ fun NotebookScreen(
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                listOf("Лента", "Media", "Черновики").forEachIndexed { index, title ->
+                listOf("Лента", "Медиа", "Черновики").forEachIndexed { index, title ->
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))

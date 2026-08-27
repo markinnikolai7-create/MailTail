@@ -5,7 +5,6 @@ import com.curly.mailtail.data.local.dao.PostDao
 import com.curly.mailtail.data.local.entity.CommentEntity
 import com.curly.mailtail.data.local.entity.NotebookEntity
 import com.curly.mailtail.data.local.entity.PostEntity
-import com.curly.mailtail.data.local.entity.ReactionEntity
 import com.curly.mailtail.domain.repository.MailTailRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -48,19 +47,6 @@ class MailTailRepositoryImpl @Inject constructor(
 
     override suspend fun addComment(comment: CommentEntity) {
         postDao.insertComment(comment)
-    }
-
-    // --- Реакции ---
-    override fun getReactionsForPost(postId: String): Flow<List<ReactionEntity>> {
-        return postDao.getReactionsForPost(postId)
-    }
-
-    override suspend fun addReaction(reaction: ReactionEntity) {
-        postDao.insertReaction(reaction)
-    }
-
-    override suspend fun removeReaction(postId: String, authorName: String, emoji: String) {
-        postDao.removeReaction(postId, authorName, emoji)
     }
 
     override suspend fun deleteNotebookById(notebookId: String) {

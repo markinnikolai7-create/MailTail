@@ -7,16 +7,14 @@ import com.curly.mailtail.data.local.dao.PostDao
 import com.curly.mailtail.data.local.entity.NotebookEntity
 import com.curly.mailtail.data.local.entity.PostEntity
 import com.curly.mailtail.data.local.entity.CommentEntity
-import com.curly.mailtail.data.local.entity.ReactionEntity
 
 @Database(
     entities = [
         NotebookEntity::class,
         PostEntity::class,
-        CommentEntity::class,
-        ReactionEntity::class
+        CommentEntity::class
     ],
-    version = 4, // Поднимаем версию базы данных
+    version = 5, // Поднимаем версию базы данных
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

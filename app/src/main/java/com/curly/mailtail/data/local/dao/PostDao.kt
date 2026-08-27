@@ -8,7 +8,6 @@ import androidx.room.Update
 import com.curly.mailtail.data.local.entity.PostEntity
 import kotlinx.coroutines.flow.Flow
 import com.curly.mailtail.data.local.entity.CommentEntity
-import com.curly.mailtail.data.local.entity.ReactionEntity
 
 @Dao
 interface PostDao {
@@ -27,14 +26,4 @@ interface PostDao {
 
     @Query("SELECT * FROM comments WHERE post_id = :postId ORDER BY dateMillis ASC")
     fun getCommentsForPost(postId: String): Flow<List<CommentEntity>>
-
-    // Реакции
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertReaction(reaction: ReactionEntity)
-
-    @Query("SELECT * FROM reactions WHERE post_id = :postId")
-    fun getReactionsForPost(postId: String): Flow<List<ReactionEntity>>
-
-    @Query("DELETE FROM reactions WHERE post_id = :postId AND authorName = :authorName AND emoji = :emoji")
-    suspend fun removeReaction(postId: String, authorName: String, emoji: String)
 }

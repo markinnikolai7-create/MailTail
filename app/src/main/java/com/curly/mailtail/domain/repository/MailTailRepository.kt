@@ -4,7 +4,6 @@ import com.curly.mailtail.data.local.entity.NotebookEntity
 import com.curly.mailtail.data.local.entity.PostEntity
 import kotlinx.coroutines.flow.Flow
 import com.curly.mailtail.data.local.entity.CommentEntity
-import com.curly.mailtail.data.local.entity.ReactionEntity
 
 interface MailTailRepository {
     fun getAllNotebooks(): Flow<List<NotebookEntity>>
@@ -17,10 +16,6 @@ interface MailTailRepository {
 
     fun getCommentsForPost(postId: String): Flow<List<CommentEntity>>
     suspend fun addComment(comment: CommentEntity)
-
-    fun getReactionsForPost(postId: String): Flow<List<ReactionEntity>>
-    suspend fun addReaction(reaction: ReactionEntity)
-    suspend fun removeReaction(postId: String, authorName: String, emoji: String)
 
     suspend fun deleteNotebookById(notebookId: String)
 

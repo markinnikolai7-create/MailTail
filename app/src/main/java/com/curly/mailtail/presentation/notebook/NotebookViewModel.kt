@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.curly.mailtail.data.local.entity.NotebookEntity
 import com.curly.mailtail.data.local.entity.PostEntity
-import com.curly.mailtail.data.local.entity.ReactionEntity
 import com.curly.mailtail.domain.repository.MailTailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted

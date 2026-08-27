@@ -40,7 +40,7 @@ class CreatePostViewModel @Inject constructor(
                 id = UUID.randomUUID().toString(),
                 notebookId = notebookId,
                 authorName = "Я",
-                title = title.ifBlank { null },
+                title = title,
                 content = content,
                 dateMillis = dateMillis,
                 imageUris = imagesString,

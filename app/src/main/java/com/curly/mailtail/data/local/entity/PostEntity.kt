@@ -1,33 +1,19 @@
 package com.curly.mailtail.data.local.entity
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.util.UUID
 
-@Entity(
-    tableName = "posts",
-    foreignKeys = [
-        ForeignKey(
-            entity = NotebookEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["notebook_id"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
-)
+@Entity(tableName = "posts")
 data class PostEntity(
-    @PrimaryKey val id: String,
-
-    @ColumnInfo(name = "notebook_id", index = true) val notebookId: String,
-
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
+    val notebookId: String,
     val authorName: String,
-    val title: String?, // Заголовок поста
+    val title: String = "",
     val content: String,
-    val dateMillis: Long,
-
-    val imageUris: String?, // Строка с путями к картинкам через запятую
-
-    val isDraft: Boolean = false,
-    val isSyncing: Boolean = false
+    val timestamp: Long = System.currentTimeMillis(),
+    val dateMillis: Long = System.currentTimeMillis(),
+    val imageUris: String? = null,
+    val isDraft: Boolean = false
 )

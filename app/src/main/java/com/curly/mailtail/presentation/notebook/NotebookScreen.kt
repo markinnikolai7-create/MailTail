@@ -1,6 +1,5 @@
 package com.curly.mailtail.presentation.notebook
 
-import com.curly.mailtail.data.local.entity.NotebookEntity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -39,7 +38,7 @@ fun NotebookScreen(
 ) {
     val notebook by viewModel.notebook.collectAsState()
     val posts by viewModel.posts.collectAsState()
-    var selectedTab by remember { mutableIntStateOf(0) } // 0 - Лента, 1 - Media, 2 - Черновики
+    var selectedTab by remember { mutableIntStateOf(0) } // 0 - Лента, 1 - Медиа, 2 - Черновики
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -124,7 +123,7 @@ fun NotebookScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Табы: Лента, Media, Черновики
+            // Табы: Лента, Медиа, Черновики
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -163,7 +162,6 @@ fun NotebookScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // Группируем посты по отформатированному месяцу и году
-                    // ВНИМАНИЕ: Если в твоем PostEntity переменная времени называется не timestamp, замени ее ниже
                     val groupedPosts = posts.groupBy { post -> formatMonthYear(post.timestamp) }
 
                     groupedPosts.forEach { (monthYear, monthPosts) ->
@@ -217,7 +215,7 @@ fun PostCardMockup(
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = "Имя участника", // TODO: post.authorName
+                    text = post.authorName,
                     color = AccentPink,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
@@ -232,14 +230,14 @@ fun PostCardMockup(
 
             // Заголовок и текст
             Text(
-                text = "Заголовок", // TODO: post.title
+                text = post.title,
                 color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст текст", // TODO: post.content
+                text = post.content,
                 color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.bodyMedium,
                 lineHeight = 20.sp
@@ -290,9 +288,11 @@ fun PostCardMockup(
                 )
             }
         }
-        fun formatMonthYear(timestamp: Long): String {
-            val formatter = SimpleDateFormat("LLLL yyyy", Locale("ru"))
-            return formatter.format(Date(timestamp)).replaceFirstChar { it.uppercase() }
-        }
     }
+}
+
+// Вспомогательная функция вынесена на уровень файла (вне любых Composable)
+fun formatMonthYear(timestamp: Long): String {
+    val formatter = SimpleDateFormat("LLLL yyyy", Locale("ru"))
+    return formatter.format(Date(timestamp)).replaceFirstChar { it.uppercase() }
 }

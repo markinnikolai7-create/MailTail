@@ -26,6 +26,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.curly.mailtail.presentation.home.CreateNotebookScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,13 +54,17 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        composable("home") {
+                        composable(route = "home") {
                             HomeScreen(
                                 onNavigateToNotebook = { notebookId ->
-                                    navController.navigate("notebook/$notebookId")
+                                    navController.navigate(route = "notebook/$notebookId")
                                 },
                                 onNavigateToCreateNotebook = {
-                                    navController.navigate("create_notebook")
+                                    navController.navigate(route = "create_notebook")
+                                },
+                                // ДОБАВЬ ЭТИ ТРИ СТРОЧКИ:
+                                onNavigateToEditNotebook = { notebookId ->
+                                    navController.navigate(route = "edit_notebook/$notebookId")
                                 }
                             )
                         }
@@ -78,7 +85,7 @@ class MainActivity : ComponentActivity() {
                             val viewModel: com.curly.mailtail.presentation.home.HomeViewModel = hiltViewModel()
                             CreateNotebookScreen(
                                 onNavigateBack = { navController.popBackStack() },
-                                onNotebookCreated = { title, envId, stampId ->
+                                onSave = { title, envId, stampId -> // <-- ИСПРАВЛЕНО ЗДЕСЬ
                                     viewModel.createNotebook(title, envId, stampId)
                                     navController.popBackStack()
                                 }
@@ -103,9 +110,11 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToNotebook = { notebookId ->
                                     navController.navigate("notebook/$notebookId")
                                 },
-                                // ТЕПЕРЬ ПЕРЕХОДИМ НА ЭКРАН КОНСТРУКТОРА
                                 onNavigateToCreateNotebook = {
                                     navController.navigate("create_notebook")
+                                },
+                                onNavigateToEditNotebook = { notebookId -> // <-- ДОБАВИЛИ
+                                    navController.navigate("edit_notebook/$notebookId")
                                 }
                             )
                         }
@@ -115,11 +124,37 @@ class MainActivity : ComponentActivity() {
                             val viewModel: com.curly.mailtail.presentation.home.HomeViewModel = hiltViewModel()
                             CreateNotebookScreen(
                                 onNavigateBack = { navController.popBackStack() },
-                                onNotebookCreated = { title, envId, stampId ->
+                                onSave = { title, envId, stampId -> // Было onNotebookCreated
                                     viewModel.createNotebook(title, envId, stampId)
-                                    navController.popBackStack() // Возвращаемся домой
+                                    navController.popBackStack()
                                 }
                             )
+                        }
+
+                        composable(
+                            route = "edit_notebook/{notebookId}",
+                            arguments = listOf(navArgument("notebookId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val notebookId = backStackEntry.arguments?.getString("notebookId") ?: ""
+                            val viewModel: com.curly.mailtail.presentation.home.HomeViewModel = hiltViewModel()
+                            val notebooks by viewModel.notebooks.collectAsState()
+
+                            // Находим дневник, который хотим отредактировать
+                            val notebookToEdit = notebooks.find { it.id == notebookId }
+
+                            if (notebookToEdit != null) {
+                                CreateNotebookScreen(
+                                    initialTitle = notebookToEdit.title,
+                                    initialEnvelopeIndex = notebookToEdit.envelopeId,
+                                    initialStampIndex = notebookToEdit.stampId,
+                                    isEditMode = true,
+                                    onNavigateBack = { navController.popBackStack() },
+                                    onSave = { title, envId, stampId ->
+                                        viewModel.updateNotebook(notebookId, title, envId, stampId)
+                                        navController.popBackStack()
+                                    }
+                                )
+                            }
                         }
                     }
                 }

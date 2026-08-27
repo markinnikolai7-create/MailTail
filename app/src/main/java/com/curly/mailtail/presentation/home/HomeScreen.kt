@@ -40,6 +40,7 @@ import com.curly.mailtail.presentation.ui.theme.AccentPink
 fun HomeScreen(
     onNavigateToNotebook: (String) -> Unit,
     onNavigateToCreateNotebook: () -> Unit,
+    onNavigateToEditNotebook: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -118,7 +119,8 @@ fun HomeScreen(
                 NotebookCard(
                     notebook = notebook,
                     onClick = { onNavigateToNotebook(notebook.id) },
-                    onDeleteClick = { viewModel.deleteNotebook(notebook.id) }
+                    onDeleteClick = { viewModel.deleteNotebook(notebook.id) },
+                    onEditClick = { onNavigateToEditNotebook(notebook.id) } // <-- ВОТ ТУТ
                 )
             }
 
@@ -133,7 +135,8 @@ fun HomeScreen(
 fun NotebookCard(
     notebook: NotebookEntity,
     onClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onEditClick: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -252,7 +255,10 @@ fun NotebookCard(
                     ) {
                         DropdownMenuItem(
                             text = { Text("Редактировать", color = AccentPink) },
-                            onClick = { showMenu = false }
+                            onClick = {
+                                showMenu = false
+                                onEditClick() // <-- ВЕРНУЛИ ВЫЗОВ
+                            }
                         )
                         DropdownMenuItem(
                             text = { Text("Пригласить участника", color = AccentPink) },
@@ -268,7 +274,7 @@ fun NotebookCard(
                             },
                             onClick = {
                                 showMenu = false
-                                onDeleteClick()
+                                onDeleteClick() // <-- ВЕРНУЛИ ВЫЗОВ
                             }
                         )
                     }

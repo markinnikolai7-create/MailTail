@@ -46,4 +46,20 @@ class HomeViewModel @Inject constructor(
             repository.deleteNotebookById(notebookId)
         }
     }
+
+    fun updateNotebook(notebookId: String, newTitle: String, newEnvelopeId: Int, newStampId: Int) {
+        viewModelScope.launch {
+            // Ищем дневник по ID среди загруженных
+            val existing = notebooks.value.find { it.id == notebookId }
+            if (existing != null) {
+                repository.updateNotebook(
+                    existing.copy(
+                        title = newTitle,
+                        envelopeId = newEnvelopeId,
+                        stampId = newStampId
+                    )
+                )
+            }
+        }
+    }
 }

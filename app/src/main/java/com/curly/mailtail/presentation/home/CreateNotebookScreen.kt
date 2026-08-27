@@ -35,13 +35,18 @@ import com.curly.mailtail.presentation.ui.theme.AccentPink
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateNotebookScreen(
+    initialTitle: String = "",
+    initialEnvelopeIndex: Int = 0,
+    initialStampIndex: Int = -1,
+    isEditMode: Boolean = false,
     onNavigateBack: () -> Unit,
-    onNotebookCreated: (String, Int, Int) -> Unit
+    onSave: (String, Int, Int) -> Unit // Переименовали onNotebookCreated в onSave
 ) {
-    var currentStep by remember { mutableIntStateOf(1) } // 1 - конверт, 2 - штамп, 3 - название
-    var selectedEnvelopeIndex by remember { mutableIntStateOf(0) }
-    var selectedStampIndex by remember { mutableIntStateOf(-1) } // -1 означает без штампа
-    var notebookTitle by remember { mutableStateOf("") }
+    var currentStep by remember { mutableIntStateOf(1) }
+    // Используем начальные значения, если они переданы
+    var selectedEnvelopeIndex by remember { mutableIntStateOf(initialEnvelopeIndex) }
+    var selectedStampIndex by remember { mutableIntStateOf(initialStampIndex) }
+    var notebookTitle by remember { mutableStateOf(initialTitle) }
 
     val envelopeDrawables = listOf(
         R.drawable.env_tirq, R.drawable.env_tirq_mesh, R.drawable.env_blue,
@@ -62,7 +67,8 @@ fun CreateNotebookScreen(
             TopAppBar(
                 title = {
                     if (currentStep == 3) {
-                        Text("Новый дневник", color = AccentPink, fontWeight = FontWeight.Bold)
+                        // Меняем заголовок экрана
+                        Text(if (isEditMode) "Редактирование" else "Новый дневник", color = AccentPink, fontWeight = FontWeight.Bold)
                     }
                 },
                 navigationIcon = {
@@ -219,17 +225,16 @@ fun CreateNotebookScreen(
                             Button(
                                 onClick = {
                                     if (notebookTitle.isNotBlank()) {
-                                        onNotebookCreated(notebookTitle, selectedEnvelopeIndex, selectedStampIndex)
+                                        onSave(notebookTitle, selectedEnvelopeIndex, selectedStampIndex)
                                     }
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp),
+                                modifier = Modifier.fillMaxWidth().height(56.dp),
                                 enabled = notebookTitle.isNotBlank(),
                                 colors = ButtonDefaults.buttonColors(containerColor = AccentPink),
                                 shape = RoundedCornerShape(16.dp)
                             ) {
-                                Text("Создать дневник", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                // Меняем текст на кнопке
+                                Text(if (isEditMode) "Сохранить" else "Создать дневник", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

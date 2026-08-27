@@ -66,4 +66,8 @@ class MailTailRepositoryImpl @Inject constructor(
     override suspend fun deleteNotebookById(notebookId: String) {
         notebookDao.deleteNotebookById(notebookId)
     }
+
+    override suspend fun updateNotebook(notebook: NotebookEntity) {
+        notebookDao.updateNotebook(notebook)
+    }
 }

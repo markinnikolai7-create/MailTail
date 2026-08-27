@@ -23,5 +23,6 @@ interface MailTailRepository {
     suspend fun removeReaction(postId: String, authorName: String, emoji: String)
 
     suspend fun deleteNotebookById(notebookId: String)
-    
+
+    suspend fun updateNotebook(notebook: NotebookEntity)
 }

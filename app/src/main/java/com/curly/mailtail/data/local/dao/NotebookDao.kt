@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.curly.mailtail.data.local.entity.NotebookEntity
 import kotlinx.coroutines.flow.Flow
+import androidx.room.Update
 
 @Dao
 interface NotebookDao {
@@ -21,4 +22,7 @@ interface NotebookDao {
 
     @Query("DELETE FROM notebooks WHERE id = :notebookId")
     suspend fun deleteNotebookById(notebookId: String)
+
+    @Update
+    suspend fun updateNotebook(notebook: NotebookEntity)
 }

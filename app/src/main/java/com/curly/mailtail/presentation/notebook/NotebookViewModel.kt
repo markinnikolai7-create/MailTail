@@ -33,7 +33,10 @@ class NotebookViewModel @Inject constructor(
 
     private fun loadNotebookData() {
         viewModelScope.launch {
-            // Заглушка, пока не подключим реальные методы из репозитория
+            repository.getNotebookById(notebookId).collect { _notebook.value = it }
+        }
+        viewModelScope.launch {
+            repository.getPostsByNotebookId(notebookId).collect { _posts.value = it }
         }
     }
 }

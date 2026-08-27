@@ -26,6 +26,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.curly.mailtail.data.local.entity.PostEntity
 import com.curly.mailtail.presentation.ui.theme.AccentPink
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun NotebookScreen(
@@ -159,19 +162,24 @@ fun NotebookScreen(
                     contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Заголовок даты (временно хардкод, потом привяжем к датам постов)
-                    item {
-                        Text(
-                            text = "## месяц 20##",
-                            color = MaterialTheme.colorScheme.onBackground,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                    }
+                    // Группируем посты по отформатированному месяцу и году
+                    // ВНИМАНИЕ: Если в твоем PostEntity переменная времени называется не timestamp, замени ее ниже
+                    val groupedPosts = posts.groupBy { post -> formatMonthYear(post.timestamp) }
 
-                    items(posts) { post ->
-                        PostCardMockup(post = post, onClick = { /* TODO: Открытие поста */ })
+                    groupedPosts.forEach { (monthYear, monthPosts) ->
+                        item {
+                            Text(
+                                text = monthYear,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
+                            )
+                        }
+
+                        items(monthPosts) { post ->
+                            PostCardMockup(post = post, onClick = { /* TODO: Открытие поста */ })
+                        }
                     }
                 }
             }
@@ -281,6 +289,10 @@ fun PostCardMockup(
                     fontSize = 14.sp
                 )
             }
+        }
+        fun formatMonthYear(timestamp: Long): String {
+            val formatter = SimpleDateFormat("LLLL yyyy", Locale("ru"))
+            return formatter.format(Date(timestamp)).replaceFirstChar { it.uppercase() }
         }
     }
 }

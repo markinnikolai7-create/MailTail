@@ -20,4 +20,7 @@ interface MailTailRepository {
     suspend fun deleteNotebookById(notebookId: String)
 
     suspend fun updateNotebook(notebook: NotebookEntity)
+
+    fun getNotebookById(notebookId: String): kotlinx.coroutines.flow.Flow<NotebookEntity?>
+    fun getPostsByNotebookId(notebookId: String): kotlinx.coroutines.flow.Flow<List<PostEntity>>
 }

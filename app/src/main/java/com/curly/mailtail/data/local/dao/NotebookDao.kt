@@ -25,4 +25,8 @@ interface NotebookDao {
 
     @Update
     suspend fun updateNotebook(notebook: NotebookEntity)
+
+    @Query("SELECT * FROM notebooks WHERE id = :notebookId")
+    fun getNotebookById(notebookId: String): kotlinx.coroutines.flow.Flow<NotebookEntity?>
+
 }

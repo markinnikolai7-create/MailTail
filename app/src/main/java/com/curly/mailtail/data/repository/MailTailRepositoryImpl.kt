@@ -56,4 +56,7 @@ class MailTailRepositoryImpl @Inject constructor(
     override suspend fun updateNotebook(notebook: NotebookEntity) {
         notebookDao.updateNotebook(notebook)
     }
+
+    override fun getNotebookById(notebookId: String) = notebookDao.getNotebookById(notebookId)
+    override fun getPostsByNotebookId(notebookId: String) = postDao.getPostsByNotebookId(notebookId)
 }

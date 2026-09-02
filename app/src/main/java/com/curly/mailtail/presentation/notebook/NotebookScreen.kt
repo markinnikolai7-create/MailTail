@@ -28,6 +28,19 @@ import com.curly.mailtail.presentation.ui.theme.AccentPink
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlin.math.abs
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 
 @Composable
 fun NotebookScreen(
@@ -38,7 +51,9 @@ fun NotebookScreen(
 ) {
     val notebook by viewModel.notebook.collectAsState()
     val posts by viewModel.posts.collectAsState()
-    var selectedTab by remember { mutableIntStateOf(0) } // 0 - Лента, 1 - Медиа, 2 - Черновики
+    var selectedTab by remember { mutableIntStateOf(0) }
+    var fullScreenImages by remember { mutableStateOf<List<String>>(emptyList()) }
+    var initialImagePage by remember { mutableIntStateOf(0) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -176,9 +191,90 @@ fun NotebookScreen(
                         }
 
                         items(monthPosts) { post ->
-                            PostCardMockup(post = post, onClick = { /* TODO: Открытие поста */ })
+                            PostCardMockup(
+                                post = post,
+                                onClick = { /* TODO: Открытие поста */ },
+                                onImageClick = { uris, index ->
+                                    fullScreenImages = uris
+                                    initialImagePage = index
+                                }
+                            )
                         }
                     }
+                }
+            }
+        }
+    }
+    // Полноэкранный просмотрщик фото с листанием и свайпом
+    // Полноэкранный просмотрщик фото с листанием и интерактивным свайпом
+    if (fullScreenImages.isNotEmpty()) {
+        Dialog(
+            onDismissRequest = { fullScreenImages = emptyList() },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                dismissOnBackPress = true
+            )
+        ) {
+            val pagerState = rememberPagerState(
+                initialPage = initialImagePage,
+                pageCount = { fullScreenImages.size }
+            )
+
+            // Отслеживаем смещение пальца
+            var offsetY by remember { mutableFloatStateOf(0f) }
+            // Плавная анимация для возврата фото на место
+            val animatedOffsetY by animateFloatAsState(targetValue = offsetY, label = "offsetY")
+            // Прозрачность фона зависит от того, как далеко потянули картинку
+            val backgroundAlpha = (1f - (abs(animatedOffsetY) / 1000f)).coerceIn(0f, 1f)
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = backgroundAlpha * 0.9f))
+                    .pointerInput(Unit) {
+                        detectVerticalDragGestures(
+                            onDragEnd = {
+                                // Если смахнули вверх или вниз достаточно сильно (больше 200 пикселей)
+                                if (abs(offsetY) > 200f) {
+                                    fullScreenImages = emptyList()
+                                } else {
+                                    // Возвращаем картинку в центр, если свайп был слабым
+                                    offsetY = 0f
+                                }
+                            },
+                            onDragCancel = { offsetY = 0f }
+                        ) { change, dragAmount ->
+                            change.consume()
+                            offsetY += dragAmount
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            translationY = animatedOffsetY
+                            // Легкое уменьшение картинки при свайпе для эффекта глубины
+                            val scale = (1f - (abs(animatedOffsetY) / 1500f)).coerceIn(0.7f, 1f)
+                            scaleX = scale
+                            scaleY = scale
+                        }
+                ) { page ->
+                    AsyncImage(
+                        model = fullScreenImages[page],
+                        contentDescription = "Полноэкранное фото",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable {
+                                // Закрытие по простому тапу, если не было свайпа
+                                if (abs(offsetY) < 10f) {
+                                    fullScreenImages = emptyList()
+                                }
+                            },
+                        contentScale = ContentScale.Fit
+                    )
                 }
             }
         }
@@ -188,12 +284,13 @@ fun NotebookScreen(
 @Composable
 fun PostCardMockup(
     post: PostEntity,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onImageClick: (List<String>, Int) -> Unit
 ) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp), // Скругления как в макете
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -228,14 +325,18 @@ fun PostCardMockup(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Заголовок и текст
-            Text(
-                text = post.title,
-                color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            // Заголовок (показываем, только если он не пустой)
+            if (post.title.isNotBlank()) {
+                Text(
+                    text = post.title,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Текст поста
             Text(
                 text = post.content,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -243,29 +344,29 @@ fun PostCardMockup(
                 lineHeight = 20.sp
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // Блок с фото (появляется ТОЛЬКО если есть прикрепленные картинки)
+            val images = post.imageUris?.split(",")?.filter { it.isNotBlank() } ?: emptyList()
 
-            // Блок с фото (заглушки)
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFD9D9D9)),
-                    contentAlignment = Alignment.Center
+            if (images.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Фото", color = Color.Black)
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFD9D9D9)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Фото", color = Color.Black)
+                    itemsIndexed(images) { index, uriString ->
+                        AsyncImage(
+                            model = uriString,
+                            contentDescription = "Фото записи",
+                            modifier = Modifier
+                                // 1 фото = на всю ширину, 2 и более = показываем ровно 2 (с учетом отступа)
+                                .fillParentMaxWidth(if (images.size == 1) 1f else 0.48f)
+                                .aspectRatio(1f) // Квадрат
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color(0xFFF0F0F0))
+                                .clickable { onImageClick(images, index) },
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
             }
 
@@ -281,7 +382,7 @@ fun PostCardMockup(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "##",
+                    text = "##", // Заглушку счетчика комментариев тоже потом заменим на реальную цифру
                     color = AccentPink,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp

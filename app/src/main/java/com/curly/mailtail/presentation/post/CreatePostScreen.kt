@@ -26,6 +26,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
@@ -43,9 +46,21 @@ fun CreatePostScreen(
 
     var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
+    val context = LocalContext.current
+
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 10)
     ) { uris ->
+        uris.forEach { uri ->
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (e: SecurityException) {
+                // Игнорируем, если URI не поддерживает постоянные права
+            }
+        }
         selectedImageUris = selectedImageUris + uris
     }
 

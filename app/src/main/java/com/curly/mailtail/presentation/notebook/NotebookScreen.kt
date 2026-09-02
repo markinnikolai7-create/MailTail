@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import kotlin.math.abs
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import com.curly.mailtail.data.local.entity.PostWithCommentCount
 
 @Composable
 fun NotebookScreen(
@@ -177,7 +178,7 @@ fun NotebookScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // Группируем посты по отформатированному месяцу и году
-                    val groupedPosts = posts.groupBy { post -> formatMonthYear(post.timestamp) }
+                    val groupedPosts = posts.groupBy { item -> formatMonthYear(item.post.timestamp) }
 
                     groupedPosts.forEach { (monthYear, monthPosts) ->
                         item {
@@ -190,9 +191,9 @@ fun NotebookScreen(
                             )
                         }
 
-                        items(monthPosts) { post ->
+                        items(monthPosts) { postWithComments ->
                             PostCardMockup(
-                                post = post,
+                                postWithComments = postWithComments, // <-- Передаем обертку
                                 onClick = { /* TODO: Открытие поста */ },
                                 onImageClick = { uris, index ->
                                     fullScreenImages = uris
@@ -283,10 +284,12 @@ fun NotebookScreen(
 
 @Composable
 fun PostCardMockup(
-    post: PostEntity,
+    postWithComments: PostWithCommentCount, // <-- Меняем имя и тип параметра
     onClick: () -> Unit,
     onImageClick: (List<String>, Int) -> Unit
 ) {
+    val post = postWithComments.post // Вытаскиваем сам пост, чтобы старый код ниже продолжил работать
+
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -382,7 +385,7 @@ fun PostCardMockup(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "##", // Заглушку счетчика комментариев тоже потом заменим на реальную цифру
+                    text = postWithComments.commentCount.toString(), // <-- РЕАЛЬНЫЙ СЧЕТЧИК
                     color = AccentPink,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp

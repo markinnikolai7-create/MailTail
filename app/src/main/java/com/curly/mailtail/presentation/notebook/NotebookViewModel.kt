@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.curly.mailtail.data.local.entity.PostWithCommentCount
 
 @HiltViewModel
 class NotebookViewModel @Inject constructor(
@@ -24,8 +25,8 @@ class NotebookViewModel @Inject constructor(
     private val _notebook = MutableStateFlow<NotebookEntity?>(null)
     val notebook: StateFlow<NotebookEntity?> = _notebook.asStateFlow()
 
-    private val _posts = MutableStateFlow<List<PostEntity>>(emptyList())
-    val posts: StateFlow<List<PostEntity>> = _posts.asStateFlow()
+    private val _posts = MutableStateFlow<List<PostWithCommentCount>>(emptyList())
+    val posts: StateFlow<List<PostWithCommentCount>> = _posts.asStateFlow()
 
     init {
         loadNotebookData()

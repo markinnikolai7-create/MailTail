@@ -9,6 +9,7 @@ import androidx.room.Update
 import com.curly.mailtail.data.local.entity.CommentEntity // <-- Добавили импорт комментариев
 import com.curly.mailtail.data.local.entity.PostEntity
 import kotlinx.coroutines.flow.Flow
+import com.curly.mailtail.data.local.entity.PostWithCommentCount
 
 @Dao
 interface PostDao {
@@ -29,8 +30,14 @@ interface PostDao {
     @Query("SELECT * FROM posts WHERE id = :postId")
     suspend fun getPostById(postId: String): PostEntity?
 
-    @Query("SELECT * FROM posts WHERE notebookId = :notebookId ORDER BY timestamp DESC")
-    fun getPostsByNotebookId(notebookId: String): Flow<List<PostEntity>>
+    @Query("""
+        SELECT posts.*, 
+        (SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) AS comment_count 
+        FROM posts 
+        WHERE notebookId = :notebookId 
+        ORDER BY timestamp DESC
+    """)
+    fun getPostsByNotebookId(notebookId: String): Flow<List<PostWithCommentCount>>
 
     // --- Комментарии ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)

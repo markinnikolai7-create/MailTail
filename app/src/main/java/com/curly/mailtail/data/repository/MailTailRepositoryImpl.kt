@@ -5,6 +5,7 @@ import com.curly.mailtail.data.local.dao.PostDao
 import com.curly.mailtail.data.local.entity.CommentEntity
 import com.curly.mailtail.data.local.entity.NotebookEntity
 import com.curly.mailtail.data.local.entity.PostEntity
+import com.curly.mailtail.data.local.entity.PostWithCommentCount
 import com.curly.mailtail.domain.repository.MailTailRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -15,9 +16,7 @@ class MailTailRepositoryImpl @Inject constructor(
 ) : MailTailRepository {
 
     // --- Блокноты ---
-    override fun getAllNotebooks(): Flow<List<NotebookEntity>> {
-        return notebookDao.getAllNotebooks()
-    }
+    override fun getAllNotebooks(): Flow<List<NotebookEntity>> = notebookDao.getAllNotebooks()
 
     override suspend fun createNotebook(notebook: NotebookEntity) {
         notebookDao.insertNotebook(notebook)
@@ -27,8 +26,18 @@ class MailTailRepositoryImpl @Inject constructor(
         notebookDao.updateNotebookTitle(notebookId, newTitle)
     }
 
+    override suspend fun deleteNotebookById(notebookId: String) {
+        notebookDao.deleteNotebookById(notebookId)
+    }
+
+    override suspend fun updateNotebook(notebook: NotebookEntity) {
+        notebookDao.updateNotebook(notebook)
+    }
+
+    override fun getNotebookById(notebookId: String) = notebookDao.getNotebookById(notebookId)
+
     // --- Посты ---
-    override fun getPostsForNotebook(notebookId: String): Flow<List<PostEntity>> {
+    override fun getPostsByNotebookId(notebookId: String): Flow<List<PostWithCommentCount>> {
         return postDao.getPostsByNotebookId(notebookId)
     }
 
@@ -48,15 +57,4 @@ class MailTailRepositoryImpl @Inject constructor(
     override suspend fun addComment(comment: CommentEntity) {
         postDao.insertComment(comment)
     }
-
-    override suspend fun deleteNotebookById(notebookId: String) {
-        notebookDao.deleteNotebookById(notebookId)
-    }
-
-    override suspend fun updateNotebook(notebook: NotebookEntity) {
-        notebookDao.updateNotebook(notebook)
-    }
-
-    override fun getNotebookById(notebookId: String) = notebookDao.getNotebookById(notebookId)
-    override fun getPostsByNotebookId(notebookId: String) = postDao.getPostsByNotebookId(notebookId)
 }
